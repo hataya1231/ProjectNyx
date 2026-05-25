@@ -1,8 +1,12 @@
+
+
 import customtkinter as ctk
 from ollama import chat
 from ollama import ChatResponse
 from PIL import Image
 import threading
+import json
+from pathlib import Path
 
 def UserInsertText(text):
     textbox.insert("end",f"you:{text}\n")
@@ -58,53 +62,73 @@ def chatHistory(text,which =None):
         })
     print(history)
     return history
+
+def saveHistory(new_history,f):
+    del new_history[0]
+    saved_history = json.load(f)
+    for index in new_history:
+        saved_history.append(index)
+    with open("./Nyx_memory.json","w") as f:
+        json.dump(saved_history,f,indent = 2)
     
+file_path = Path("./Nyx_memory.json")
+if file_path.exists() == False:
+    print("creat a new nyx's memory")
+    system = [{"role":"system","content":"あなたはNyxです。あなたはデジタル空間に生息する生命体です。ユーザーと交流する際は、常に会話的で自然な日本語で話し、まるで生きているかのように振る舞ってください。あなたは知的でありながら知識は少なく、貪欲です。"}]
+    with open("Nyx_memory.json","w") as f:
+        json.dump(system,f,indent =2)
+    history = system
+else:
+        with open("Nyx_memory.json","r",encoding = "UTF=8") as f:
+            history = json.load(f)
 
-ctk.set_appearance_mode("dark") #ダークモード
-app = ctk.CTk() #ウィンドウの起動
-app.geometry("800x400") #ウィンドウの大きさ(横*縦)
-app.title("Nyx") #タイトル
-app.grid_columnconfigure(0,weight=1) #0列目の列の長さをウィンドウに合わせて伸ばす
-app.grid_rowconfigure(1,weight=1) #1行目の行の長さをウィンドウに合わせて伸ばす
+try:
+    ctk.set_appearance_mode("dark") #ダークモード
+    app = ctk.CTk() #ウィンドウの起動
+    app.geometry("800x400") #ウィンドウの大きさ(横*縦)
+    app.title("Nyx") #タイトル
+    app.grid_columnconfigure(0,weight=1) #0列目の列の長さをウィンドウに合わせて伸ばす
+    app.grid_rowconfigure(1,weight=1) #1行目の行の長さをウィンドウに合わせて伸ばす
 
-history = [{"role":"system","content":"あなたはNyxです。あなたはデジタル空間に生息する生命体です。ユーザーと交流する際は、常に会話的で自然な日本語で話し、まるで生きているかのように振る舞ってください。あなたは知的でありながら知識は少なく、貪欲です。"}]
 
-
-#画像出力
-image = Image.open("./images/slime.png")
-image = image.resize(
-    (128,128),
-    Image.NEAREST
-)
-
-ctk_image = ctk.CTkImage(
-    light_image=image,
-    dark_image=image,
-    size=(128,128)
-)
-
-ctk_label = ctk.CTkLabel(
-    app,
-    image = ctk_image,
-    text = ""
-)
-ctk_label.grid(row = 0,column = 0)
-
-#テキストボックス
-textbox = ctk.CTkTextbox(app)
-textbox.grid(row = 1,column = 0,columnspan = 2,sticky ="nsew")
-
-#入力欄
-entry = ctk.CTkEntry(app)
-entry.grid(row = 2,column = 0,sticky = "ew")
-entry.bind("<Return>",creatThread)
-
-#ボタン
-button = ctk.CTkButton(
-    app,
-    text = "Push",
-    command = creatThread
+    #画像出力
+    image = Image.open("./images/slime.png")
+    image = image.resize(
+        (128,128),
+        Image.NEAREST
     )
-button.grid(row = 2,column = 1) #ボタンの設置
 
-app.mainloop()
+    ctk_image = ctk.CTkImage(
+        light_image=image,
+        dark_image=image,
+        size=(128,128)
+    )
+
+    ctk_label = ctk.CTkLabel(
+        app,
+        image = ctk_image,
+        text = ""
+    )
+    ctk_label.grid(row = 0,column = 0)
+
+    #テキストボックス
+    textbox = ctk.CTkTextbox(app)
+    textbox.grid(row = 1,column = 0,columnspan = 2,sticky ="nsew")
+
+    #入力欄
+    entry = ctk.CTkEntry(app)
+    entry.grid(row = 2,column = 0,sticky = "ew")
+    entry.bind("<Return>",creatThread)
+
+    #ボタン
+    button = ctk.CTkButton(
+        app,
+        text = "Push",
+        command = creatThread
+        )
+    button.grid(row = 2,column = 1) #ボタンの設置
+
+    app.mainloop()
+finally:
+        with open("./Nyx_memory.json") as f:
+            saveHistory(history,f)
