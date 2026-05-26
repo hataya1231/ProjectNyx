@@ -7,6 +7,7 @@ from PIL import Image
 import threading
 import json
 from pathlib import Path
+from setting import prompt
 
 def UserInsertText(text):
     textbox.insert("end",f"you:{text}\n")
@@ -64,17 +65,13 @@ def chatHistory(text,which =None):
     return history
 
 def saveHistory(new_history,f):
-    del new_history[0]
-    saved_history = json.load(f)
-    for index in new_history:
-        saved_history.append(index)
     with open("./Nyx_memory.json","w") as f:
-        json.dump(saved_history,f,indent = 2)
+        json.dump(new_history,f,indent = 2)
     
 file_path = Path("./Nyx_memory.json")
 if file_path.exists() == False:
     print("creat a new nyx's memory")
-    system = [{"role":"system","content":"あなたはNyxです。あなたはデジタル空間に生息する生命体です。ユーザーと交流する際は、常に会話的で自然な日本語で話し、まるで生きているかのように振る舞ってください。あなたは知的でありながら知識は少なく、貪欲です。"}]
+    system = [{"role":"system","content":prompt}]
     with open("Nyx_memory.json","w") as f:
         json.dump(system,f,indent =2)
     history = system
