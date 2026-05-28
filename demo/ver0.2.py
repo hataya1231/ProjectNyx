@@ -7,7 +7,7 @@ from PIL import Image
 import threading
 import json
 from pathlib import Path
-from setting import prompt
+from nyxSetting import prompt
 
 def UserInsertText(text):
     textbox.insert("end",f"you:{text}\n")
